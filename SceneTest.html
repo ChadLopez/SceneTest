@@ -1,0 +1,77 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS Maps SDK for JavaScript Tutorials: Display a scene</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.28/"></script>
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/SceneView",
+      "esri/layers/IntegratedMeshLayer"
+    ], function(esriConfig, Map, SceneView, IntegratedMeshLayer) {
+
+      // Set your API key
+      esriConfig.apiKey = "AAPK11083e86647741a99c7fb43a3c0aa73dOXFqS3PpAXiX06RQrtrBwBUU4qJjDOPVuOu8Nvol23_xl9Cu92B_dODJg_JzkrKW";
+      
+      // Create a map with a specified basemap and elevation
+      const map = new Map({
+        basemap: "arcgis/topographic", // basemap styles service
+        ground: "world-elevation",    // Elevation service
+      });
+
+      // Create an Integrated Mesh Layer
+      const meshLayer = new IntegratedMeshLayer({
+        url: "https://tiles.arcgis.com/tiles/cFEFS0EWrhfDeVw9/arcgis/rest/services/Buildings_Frankfurt_2021/SceneServer/layers/0",
+        copyright: "nFrames - Aerowest",
+        title: "Integrated Mesh Frankfurt"
+      });
+
+      // Add the Integrated Mesh Layer to the map
+      map.add(meshLayer);
+   
+      // Create a SceneView and set its container and map properties
+      const view = new SceneView({
+        container: "viewDiv",
+        map: map,
+        qualityProfile: "high",
+        camera: {
+          position: {
+            x: 8.6821,  // Default Longitude (Frankfurt)
+            y: 50.1109, // Default Latitude (Frankfurt)
+            z: 1000      // Meters
+          },
+          tilt: 35
+         
+        }
+      });
+
+      // Wait for the layer to load before adjusting the camera position
+      view.whenLayerView(meshLayer).then(function (layerView) {
+        const extent = layerView.effect.extent;
+        const center = {
+          x: (extent.xmax + extent.xmin) / 2,
+          y: (extent.ymax + extent.ymin) / 2,
+        };
+
+        // Update the camera position based on the center of the mesh extent
+        view.camera.position.x = center.x;
+        view.camera.position.y = center.y;
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
